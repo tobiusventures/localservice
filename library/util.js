@@ -39,7 +39,7 @@ const getContainerId = async (containerName) => {
  * @return {Promise<Boolean>} running
  */
 const isContainerRunning = async (containerName) => {
-  const command = `ps --format '{{.Names}}'`;
+  const command = 'ps --format \'{{.Names}}\'';
   const data = await executeDocker(command);
   if (data.raw) {
     const containerNames = data.raw.trim().split('\n');
@@ -62,9 +62,9 @@ const printConfig = async (displayServiceName, env) => {
   const keys = Object.keys(env);
   const values = Object.values(env).map((obj) => obj.value || '');
   const defaultValues = Object.values(env).map((obj) => obj.defaultValue || '');
-  const keyLength = keys.reduce((a, b) => a.length > b.length ? a : b, '').length + 3;
-  const defaultValueLength = defaultValues.reduce((a, b) => a.length > b.length ? a : b, '').length + 3;
-  const valueLength = values.reduce((a, b) => a.length > b.length ? a : b, '').length + 3;
+  const keyLength = keys.reduce((a, b) => (a.length > b.length ? a : b), '').length + 3;
+  const defaultValueLength = defaultValues.reduce((a, b) => (a.length > b.length ? a : b), '').length + 3;
+  const valueLength = values.reduce((a, b) => (a.length > b.length ? a : b), '').length + 3;
   console.info([
     '  ',
     'Key'.padEnd(keyLength),

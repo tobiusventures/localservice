@@ -107,7 +107,7 @@ class MySQLService {
           return true;
         }
       }
-    } catch(err) {
+    } catch (err) {
       return false;
     }
     return false;
@@ -121,15 +121,16 @@ class MySQLService {
     let count = 0;
     let isReady = false;
     const sleep = () => setTimeout(() => undefined, this.options.serviceWaitInterval);
+    /* eslint-disable no-await-in-loop */
     while (count < this.options.serviceWaitMaxRetries) {
       isReady = await this._isServiceReady();
       if (isReady) {
         return true;
-      } else {
-        count += 1;
-        await sleep();
       }
+      count += 1;
+      await sleep();
     }
+    /* eslint-enable no-await-in-loop */
     throw new Error('MySQL service took too long to start, please try again');
   }
 
@@ -137,9 +138,11 @@ class MySQLService {
    * Determine if the MySQL database is prepared
    * @return {Promise<Boolean>} prepared
    */
+  /* eslint-disable class-methods-use-this */
   async _isDatabasePrepared() {
     throw new Error('_isDatabasePrepared is not implemented');
   }
+  /* eslint-enable class-methods-use-this */
 
   /**
    * Prepare the root user inside the MySQL database
@@ -147,8 +150,10 @@ class MySQLService {
    */
   async _prepareRootUser() {
     await verifyEnvironment(this.env);
-    const sql = `UPDATE mysql.user SET host='%' WHERE user='root'; \
-      FLUSH PRIVILEGES;`;
+    const sql = [
+      'UPDATE mysql.user SET host=\'%\' WHERE user=\'root\';',
+      'FLUSH PRIVILEGES;',
+    ].join('\n');
     const command = `exec \
       -e MYSQL_PWD=${this.env.MYSQL_ROOT_PASSWORD.value} \
       -i ${this.env.MYSQL_CONTAINER_NAME.value} \
@@ -182,16 +187,17 @@ class MySQLService {
     await verifyEnvironment(this.env);
     const seedFilePaths = await findFilePaths(this.env.MYSQL_SEED_FILES.value.trim().split(',').sort());
     let command;
+    const seeds = [];
     for (const seedFilePath of seedFilePaths) {
       console.info(`  Execute SQL: ${seedFilePath}`);
       command = `exec \
         -e MYSQL_PWD=${this.env.MYSQL_ROOT_PASSWORD.value} \
         -i ${this.env.MYSQL_CONTAINER_NAME.value} \
         mysql -u root < ${path.join(this.options.cwd, seedFilePath)}`;
-      await executeDocker(command);
+      seeds.push(executeDocker(command));
+      // await executeDocker(command);
     }
-    // seedFilePaths.forEach(async (seedFilePath) => {
-    // });
+    await Promise.all(seeds);
     console.info('Seeded MySQL database');
     return true;
   }
