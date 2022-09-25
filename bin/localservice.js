@@ -18,8 +18,9 @@ class LocalService {
     // @todo add a help command
     this.name = serviceName;
     try {
+      // eslint-disable-next-line import/no-dynamic-require
       this.service = require(`../library/${serviceName}.js`)(options);
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       throw new Error(`"${serviceName}" is not a supported service`);
     }

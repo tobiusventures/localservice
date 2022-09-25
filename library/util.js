@@ -3,15 +3,19 @@ const { dockerCommand } = require('docker-cli-js');
 
 /**
  * Execute Docker command
- * @return {Promise<Object>} response
+ * @return {Promise<String>} result
  */
-const executeDocker = (command) => dockerCommand(command, {
-  machineName: undefined,
-  currentWorkingDirectory: undefined,
-  echo: false,
-  env: undefined,
-  stdin: undefined,
-});
+const executeDocker = async (command) => {
+  const cmd = command.replace(/ +/g, ' ').trim();
+  const response = await dockerCommand(cmd, {
+    machineName: undefined,
+    currentWorkingDirectory: undefined,
+    echo: false,
+    env: undefined,
+    stdin: undefined,
+  });
+  return response.raw.trim();
+};
 
 /**
  * Find file paths
@@ -25,13 +29,7 @@ const findFilePaths = (globs) => fg(globs, { dot: true });
  * @param {String} containerName
  * @return {Promise<String>} containerId (undefined on failure)
  */
-const getContainerId = async (containerName) => {
-  const data = await executeDocker(`ps -aqf "name=${containerName}"`);
-  if (data.raw) {
-    return data.raw.trim();
-  }
-  return undefined;
-};
+const getContainerId = (containerName) => executeDocker(`ps -aqf "name=${containerName}"`);
 
 /**
  * Determine if container is running
@@ -39,15 +37,9 @@ const getContainerId = async (containerName) => {
  * @return {Promise<Boolean>} running
  */
 const isContainerRunning = async (containerName) => {
-  const command = `ps --format '{{.Names}}'`;
-  const data = await executeDocker(command);
-  if (data.raw) {
-    const containerNames = data.raw.trim().split('\n');
-    if (containerNames.includes(containerName)) {
-      return true;
-    }
-  }
-  return false;
+  const result = await executeDocker('ps --format \'{{.Names}}\'');
+  const containerNames = result.split('\n');
+  return containerNames.includes(containerName);
 };
 
 /**
@@ -62,9 +54,10 @@ const printConfig = async (displayServiceName, env) => {
   const keys = Object.keys(env);
   const values = Object.values(env).map((obj) => obj.value || '');
   const defaultValues = Object.values(env).map((obj) => obj.defaultValue || '');
-  const keyLength = keys.reduce((a, b) => a.length > b.length ? a : b, '').length + 3;
-  const defaultValueLength = defaultValues.reduce((a, b) => a.length > b.length ? a : b, '').length + 3;
-  const valueLength = values.reduce((a, b) => a.length > b.length ? a : b, '').length + 3;
+  const lengthComparator = (a, b) => ((a.length > b.length) ? a : b);
+  const keyLength = keys.reduce(lengthComparator, '').length + 3;
+  const defaultValueLength = defaultValues.reduce(lengthComparator, '').length + 3;
+  const valueLength = values.reduce(lengthComparator, '').length + 3;
   console.info([
     '  ',
     'Key'.padEnd(keyLength),
