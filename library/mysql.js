@@ -26,6 +26,20 @@ class MySQLService {
     this.options.serviceWaitInterval = this.options.serviceWaitInterval || 1000;
     this.options.serviceWaitMaxRetries = this.options.serviceWaitMaxRetries || 30;
     this.env = {
+      MYSQL_CHARSET: {
+        key: 'MYSQL_CHARSET',
+        required: false,
+        description: 'Character set used to create a new MySQL database',
+        value: process.env.MYSQL_CHARSET || 'utf8mb4',
+        defaultValue: 'utf8mb4',
+      },
+      MYSQL_COLLATE: {
+        key: 'MYSQL_COLLATE',
+        required: false,
+        description: 'Character collate used to create a new MySQL database',
+        value: process.env.MYSQL_COLLATE || 'utf8mb4_bin',
+        defaultValue: 'utf8mb4_bin',
+      },
       MYSQL_CONTAINER_NAME: {
         key: 'MYSQL_CONTAINER_NAME',
         required: true,
@@ -155,7 +169,7 @@ class MySQLService {
    */
   async _createDatabase() {
     await verifyEnvironment(this.env);
-    const sql = `CREATE DATABASE IF NOT EXISTS ${this.env.MYSQL_DATABASE.value};`;
+    const sql = `CREATE DATABASE IF NOT EXISTS ${this.env.MYSQL_DATABASE.value} CHARACTER SET ${this.env.MYSQL_CHARSET.value} COLLATE ${this.env.MYSQL_COLLATE.value};`;
     const command = `exec \
       -e MYSQL_PWD=${this.env.MYSQL_ROOT_PASSWORD.value} \
       -i ${this.env.MYSQL_CONTAINER_NAME.value} \
