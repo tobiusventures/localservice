@@ -76,8 +76,8 @@ const printConfig = async (displayServiceName, env) => {
     console.info([
       '  ',
       key.padEnd(keyLength),
-      (env[key].defaultValue || '').padEnd(defaultValueLength),
-      (env[key].value || 'none').padEnd(valueLength),
+      (env[key].defaultValue || '').toString().padEnd(defaultValueLength),
+      (env[key].value || 'none').toString().padEnd(valueLength),
       (env[key].required ? 'Y' : 'N').padEnd(11),
     ].join(''));
   });
