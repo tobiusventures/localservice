@@ -42,8 +42,8 @@ function showUsage() {
   console.info('');
   console.info('  config    Get service container config info');
   console.info('  create    Create new service container');
-  console.info('  prepare   Prepare new service container for first time use');
   console.info('  remove    Remove service container');
+  console.info('  seed      Populate service container with seed data');
   console.info('  start     Start service container');
   console.info('  status    Get service container status info');
   console.info('  stop      Stop service container');
@@ -59,8 +59,8 @@ const commandName = args[1];
 const commands = [
   'config',
   'create',
-  'prepare',
   'remove',
+  'seed',
   'start',
   'status',
   'stop',

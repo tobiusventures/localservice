@@ -23,9 +23,22 @@ class MySQLService {
   constructor(options = {}) {
     this.options = options;
     this.options.cwd = this.options.cwd || process.cwd();
-    this.options.serviceWaitInterval = this.options.serviceWaitInterval || 1000;
-    this.options.serviceWaitMaxRetries = this.options.serviceWaitMaxRetries || 30;
     this.env = {
+      MYSQL_SERVICE_WAIT_INTERVAL: {
+        key: 'MYSQL_SERVICE_WAIT_INTERVAL',
+        required: false,
+        description: 'Number of milliseconds to wait between MySQL service uptime test retries',
+        value: process.env.MYSQL_SERVICE_WAIT_INTERVAL || 1000,
+        defaultValue: 1000,
+      },
+      MYSQL_SERVICE_WAIT_MAX_RETRIES: {
+        key: 'MYSQL_SERVICE_WAIT_MAX_RETRIES',
+        required: false,
+        description: 'Maximum number of times to retry MySQL service uptime test before timing out',
+        value: process.env.MYSQL_SERVICE_WAIT_MAX_RETRIES || 30,
+        defaultValue: 30,
+      },
+
       MYSQL_CHARSET: {
         key: 'MYSQL_CHARSET',
         required: false,
@@ -107,20 +120,25 @@ class MySQLService {
       return false;
     }
     const command = `exec \
-      -i ${this.env.MYSQL_CONTAINER_NAME.value} \
       -e MYSQL_PWD=${this.env.MYSQL_ROOT_PASSWORD.value} \
+      -i ${this.env.MYSQL_CONTAINER_NAME.value} \
       mysqladmin -u root status`;
-    const result = await executeDocker(command);
-    if (result) {
-      const uptime = parseInt(
-        result.replace(/^Uptime: (\d+).*$/, '$1'),
-        10,
-      );
-      if (uptime > 0) {
-        return true;
+    try {
+      const result = await executeDocker(command);
+      if (result) {
+        const uptime = parseInt(
+          result.replace(/^Uptime: (\d+).*$/, '$1'),
+          10,
+        );
+        if (uptime > 0) {
+          return true;
+        }
       }
+      return false;
+    } catch(err) {
+      // console.warn('_isServiceReady', { err });
+      return false;
     }
-    return false;
   }
 
   /**
@@ -130,9 +148,9 @@ class MySQLService {
   async _waitUntilServiceIsReady() {
     let count = 0;
     let isReady = false;
-    const sleep = () => setTimeout(() => undefined, this.options.serviceWaitInterval);
+    const sleep = () => setTimeout(() => undefined, this.env.MYSQL_SERVICE_WAIT_INTERVAL.value);
     /* eslint-disable no-await-in-loop */
-    while (count < this.options.serviceWaitMaxRetries) {
+    while (count < this.env.MYSQL_SERVICE_WAIT_MAX_RETRIES.value) {
       isReady = await this._isServiceReady();
       if (isReady) {
         return true;
@@ -152,6 +170,8 @@ class MySQLService {
     await verifyEnvironment(this.env);
     const sql = [
       'UPDATE mysql.user SET host=\'%\' WHERE user=\'root\';',
+      'FLUSH PRIVILEGES;',
+      `ALTER USER \'root\'@\'%\' IDENTIFIED WITH mysql_native_password BY \'${this.env.MYSQL_ROOT_PASSWORD.value}\';`,
       'FLUSH PRIVILEGES;',
     ].join('\n');
     const command = `exec \
@@ -223,7 +243,6 @@ class MySQLService {
 
   /**
    * Create a new MySQL Service container
-   * @todo Should create call prepare?
    * @return {Promise<String>} containerId
    */
   async create() {
@@ -239,15 +258,17 @@ class MySQLService {
       -d ${this.env.MYSQL_IMAGE.value}`;
     const newContainerId = await executeDocker(command);
     await this._waitUntilServiceIsReady();
+    await this._prepareRootUser();
+    await this._createDatabase();
     console.info('Created MySQL container');
     return newContainerId;
   }
 
   /**
-   * Prepare a new MySQL Service container for first time use
-   * @return {Promise<Boolean>} prepared
+   * Populate the existing MySQL Service container database with seed data
+   * @return {Promise<Boolean>} seeded
    */
-  async prepare() {
+  async seed() {
     await verifyEnvironment(this.env);
     const containerId = await getContainerId(this.env.MYSQL_CONTAINER_NAME.value);
     if (!containerId) {
@@ -258,17 +279,7 @@ class MySQLService {
       throw new Error('MySQL container is not running');
     }
     await this._waitUntilServiceIsReady();
-    // @todo add isDatabasePrepared support
-    // const databasePrepared = await isDatabasePrepared();
-    // if (databasePrepared) {
-    //   throw new Error('MySQL database is already prepared');
-    // }
-    await this._prepareRootUser();
-    await this._createDatabase();
-    if (this.env.MYSQL_SEED_FILES.value) {
-      await this._seedDatabase();
-    }
-    console.info('Prepared MySQL container');
+    await this._seedDatabase();
     return true;
   }
 
