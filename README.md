@@ -23,8 +23,8 @@ Commands:
 
   config    Get service container config info
   create    Create new service container
-  prepare   Prepare new service container for first time use
   remove    Remove service container
+  seed      Populate service container with seed data
   start     Start service container
   status    Get service container status info
   stop      Stop service container
