@@ -159,7 +159,7 @@ class MySQLService {
       await sleep();
     }
     /* eslint-enable no-await-in-loop */
-    throw new Error('MySQL service took too long to start, please try again');
+    throw new Error('MySQL service took too long to start, please try again (or update `MYSQL_SERVICE_WAIT_*` settings)');
   }
 
   /**

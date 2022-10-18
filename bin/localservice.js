@@ -71,4 +71,7 @@ if (!serviceName || !commandName || !commands.includes(commandName)) {
 
 // run
 const localService = new LocalService(serviceName, { cwd: process.cwd() });
-localService.service[commandName]().catch((err) => console.error(err.message));
+localService.service[commandName]().catch((err) => {
+  console.error(err.message);
+  process.exit(1);
+});
