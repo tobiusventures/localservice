@@ -13,10 +13,16 @@ Install and manage services for your local development environments.
 [~] npm install localservice
 [~] npx localservice
 
-Usage: localservice <service> <command>
+Usage: localservice [options] <service> <command>
+
+Options:
+
+  -v, --verbose   Show verbose info (e.g. raw docker commands, etc)
+  -h, --help      Show this help screen
 
 Services:
 
+  minio     MinIO object storage (s3 compatible)
   mysql     MySQL database
 
 Commands:
