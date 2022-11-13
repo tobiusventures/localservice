@@ -3,14 +3,19 @@ const { dockerCommand } = require('docker-cli-js');
 
 /**
  * Execute Docker command
+ * @param {String} command
+ * @param {Boolean} verbose [default=false]
  * @return {Promise<String>} result
  */
-const executeDocker = async (command) => {
+const executeDocker = async (command, verbose = false) => {
   const cmd = command.replace(/ +/g, ' ').trim();
+  if (verbose) {
+    console.info(`> docker ${cmd}`);
+  }
   const response = await dockerCommand(cmd, {
     machineName: undefined,
     currentWorkingDirectory: undefined,
-    echo: false,
+    echo: verbose,
     env: undefined,
     stdin: undefined,
   });
@@ -27,17 +32,25 @@ const findFilePaths = (globs) => fg(globs, { dot: true });
 /**
  * Get container ID
  * @param {String} containerName
+ * @param {Boolean} verbose [default=false]
  * @return {Promise<String>} containerId (undefined on failure)
  */
-const getContainerId = (containerName) => executeDocker(`ps -aqf "name=${containerName}"`);
+const getContainerId = async (containerName, verbose = false) => {
+  const result = await executeDocker(`ps -aqf "name=${containerName}"`, verbose);
+  if (verbose) {
+    console.info(`> "${result}"`);
+  }
+  return result;
+};
 
 /**
  * Determine if container is running
  * @param {String} containerName
+ * @param {Boolean} verbose [default=false]
  * @return {Promise<Boolean>} running
  */
-const isContainerRunning = async (containerName) => {
-  const result = await executeDocker('ps --format \'{{.Names}}\'');
+const isContainerRunning = async (containerName, verbose = false) => {
+  const result = await executeDocker('ps --format \'{{.Names}}\'', verbose);
   const containerNames = result.split('\n');
   return containerNames.includes(containerName);
 };

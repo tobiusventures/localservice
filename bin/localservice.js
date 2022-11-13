@@ -32,11 +32,17 @@ class LocalService {
  * @return Void
  */
 function showUsage() {
-  console.info('Usage: localservice <service> <command>');
+  console.info('Usage: localservice [options] <service> <command>');
   console.info('');
   console.info('Services:');
   console.info('');
+  console.info('  minio     MinIO object storage (s3 compatible)');
   console.info('  mysql     MySQL database');
+  console.info('');
+  console.info('Options:');
+  console.info('');
+  console.info('  -v, --verbose   Show verbose info (e.g. raw docker commands, etc)');
+  console.info('  -h, --help      Show this help screen');
   console.info('');
   console.info('Commands:');
   console.info('');
@@ -52,6 +58,11 @@ function showUsage() {
 
 // cli args
 const args = process.argv.slice(2);
+let verbose = false;
+if (args.length && (args[0] === '-v' || args[0] === '--verbose')) {
+  verbose = true;
+  args.shift();
+}
 const serviceName = args[0];
 const commandName = args[1];
 
@@ -70,7 +81,10 @@ if (!serviceName || !commandName || !commands.includes(commandName)) {
 }
 
 // run
-const localService = new LocalService(serviceName, { cwd: process.cwd() });
+const localService = new LocalService(serviceName, {
+  cwd: process.cwd(),
+  verbose,
+});
 localService.service[commandName]().catch((err) => {
   console.error(err.message);
   process.exit(1);

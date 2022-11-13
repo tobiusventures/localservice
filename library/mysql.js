@@ -23,22 +23,8 @@ class MySQLService {
   constructor(options = {}) {
     this.options = options;
     this.options.cwd = this.options.cwd || process.cwd();
+    this.options.verbose = this.options.verbose || false;
     this.env = {
-      MYSQL_SERVICE_WAIT_INTERVAL: {
-        key: 'MYSQL_SERVICE_WAIT_INTERVAL',
-        required: false,
-        description: 'Number of milliseconds to wait between MySQL service uptime test retries',
-        value: process.env.MYSQL_SERVICE_WAIT_INTERVAL || 1000,
-        defaultValue: 1000,
-      },
-      MYSQL_SERVICE_WAIT_MAX_RETRIES: {
-        key: 'MYSQL_SERVICE_WAIT_MAX_RETRIES',
-        required: false,
-        description: 'Maximum number of times to retry MySQL service uptime test before timing out',
-        value: process.env.MYSQL_SERVICE_WAIT_MAX_RETRIES || 30,
-        defaultValue: 30,
-      },
-
       MYSQL_CHARSET: {
         key: 'MYSQL_CHARSET',
         required: false,
@@ -102,6 +88,20 @@ class MySQLService {
         value: process.env.MYSQL_SEED_FILES || undefined,
         defaultValue: undefined,
       },
+      MYSQL_SERVICE_WAIT_INTERVAL: {
+        key: 'MYSQL_SERVICE_WAIT_INTERVAL',
+        required: false,
+        description: 'Number of milliseconds to wait between MySQL service uptime test retries',
+        value: process.env.MYSQL_SERVICE_WAIT_INTERVAL || 1000,
+        defaultValue: 1000,
+      },
+      MYSQL_SERVICE_WAIT_MAX_RETRIES: {
+        key: 'MYSQL_SERVICE_WAIT_MAX_RETRIES',
+        required: false,
+        description: 'Maximum number of times to retry MySQL service uptime test before timing out',
+        value: process.env.MYSQL_SERVICE_WAIT_MAX_RETRIES || 30,
+        defaultValue: 30,
+      },
     };
   }
 
@@ -111,11 +111,17 @@ class MySQLService {
    */
   async _isServiceReady() {
     await verifyEnvironment(this.env);
-    const containerId = await getContainerId(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerId = await getContainerId(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (!containerId) {
       throw new Error('MySQL container does not exist');
     }
-    const containerRunning = await isContainerRunning(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerRunning = await isContainerRunning(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (!containerRunning) {
       return false;
     }
@@ -124,7 +130,7 @@ class MySQLService {
       -i ${this.env.MYSQL_CONTAINER_NAME.value} \
       mysqladmin -u root status`;
     try {
-      const result = await executeDocker(command);
+      const result = await executeDocker(command, this.options.verbose);
       if (result) {
         const uptime = parseInt(
           result.replace(/^Uptime: (\d+).*$/, '$1'),
@@ -135,7 +141,7 @@ class MySQLService {
         }
       }
       return false;
-    } catch(err) {
+    } catch (err) {
       // console.warn('_isServiceReady', { err });
       return false;
     }
@@ -171,14 +177,14 @@ class MySQLService {
     const sql = [
       'UPDATE mysql.user SET host=\'%\' WHERE user=\'root\';',
       'FLUSH PRIVILEGES;',
-      `ALTER USER \'root\'@\'%\' IDENTIFIED WITH mysql_native_password BY \'${this.env.MYSQL_ROOT_PASSWORD.value}\';`,
+      `ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '${this.env.MYSQL_ROOT_PASSWORD.value}';`,
       'FLUSH PRIVILEGES;',
     ].join('\n');
     const command = `exec \
       -e MYSQL_PWD=${this.env.MYSQL_ROOT_PASSWORD.value} \
       -i ${this.env.MYSQL_CONTAINER_NAME.value} \
       mysql -u root -e "${sql}"`;
-    await executeDocker(command);
+    await executeDocker(command, this.options.verbose);
     console.info('Prepared MySQL root user');
     return true;
   }
@@ -194,7 +200,7 @@ class MySQLService {
       -e MYSQL_PWD=${this.env.MYSQL_ROOT_PASSWORD.value} \
       -i ${this.env.MYSQL_CONTAINER_NAME.value} \
       mysql -u root -e "${sql}"`;
-    await executeDocker(command);
+    await executeDocker(command, this.options.verbose);
     console.info('Created MySQL database');
     return true;
   }
@@ -213,7 +219,7 @@ class MySQLService {
         -e MYSQL_PWD=${this.env.MYSQL_ROOT_PASSWORD.value} \
         -i ${this.env.MYSQL_CONTAINER_NAME.value} \
         mysql -u root < ${path.join(this.options.cwd, seedFilePath)}`;
-      return executeDocker(command);
+      return executeDocker(command, this.options.verbose);
     });
     await Promise.all(dockerCommands);
     console.info('Seeded MySQL database');
@@ -235,8 +241,14 @@ class MySQLService {
    */
   async status() {
     await verifyEnvironment(this.env);
-    const containerId = await getContainerId(this.env.MYSQL_CONTAINER_NAME.value);
-    const containerRunning = await isContainerRunning(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerId = await getContainerId(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
+    const containerRunning = await isContainerRunning(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     const serviceReady = await this._isServiceReady();
     printStatus('MySQL', containerId, containerRunning, serviceReady);
   }
@@ -247,7 +259,10 @@ class MySQLService {
    */
   async create() {
     await verifyEnvironment(this.env);
-    const containerId = await getContainerId(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerId = await getContainerId(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (containerId) {
       throw new Error('MySQL container already exists');
     }
@@ -256,7 +271,7 @@ class MySQLService {
       -v ${this.env.MYSQL_CONTAINER_NAME.value}:${this.env.MYSQL_PATH.value} \
       -e MYSQL_ROOT_PASSWORD=${this.env.MYSQL_ROOT_PASSWORD.value} \
       -d ${this.env.MYSQL_IMAGE.value}`;
-    const newContainerId = await executeDocker(command);
+    const newContainerId = await executeDocker(command, this.options.verbose);
     await this._waitUntilServiceIsReady();
     await this._prepareRootUser();
     await this._createDatabase();
@@ -270,11 +285,17 @@ class MySQLService {
    */
   async seed() {
     await verifyEnvironment(this.env);
-    const containerId = await getContainerId(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerId = await getContainerId(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (!containerId) {
       throw new Error('MySQL container does not exist');
     }
-    const containerRunning = await isContainerRunning(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerRunning = await isContainerRunning(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (!containerRunning) {
       throw new Error('MySQL container is not running');
     }
@@ -289,16 +310,22 @@ class MySQLService {
    */
   async start() {
     await verifyEnvironment(this.env);
-    const containerId = await getContainerId(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerId = await getContainerId(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (!containerId) {
       throw new Error('MySQL container does not exist');
     }
-    const containerRunning = await isContainerRunning(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerRunning = await isContainerRunning(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (containerRunning) {
       throw new Error('MySQL container is already running');
     }
     const command = `container start ${this.env.MYSQL_CONTAINER_NAME.value}`;
-    const containerName = await executeDocker(command);
+    const containerName = await executeDocker(command, this.options.verbose);
     if (containerName !== this.env.MYSQL_CONTAINER_NAME.value) {
       throw new Error('Failed to start MySQL container');
     }
@@ -312,16 +339,22 @@ class MySQLService {
    */
   async stop() {
     await verifyEnvironment(this.env);
-    const containerId = await getContainerId(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerId = await getContainerId(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (!containerId) {
       throw new Error('MySQL container does not exist');
     }
-    const containerRunning = await isContainerRunning(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerRunning = await isContainerRunning(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (!containerRunning) {
       throw new Error('MySQL container is not running');
     }
     const command = `container stop ${this.env.MYSQL_CONTAINER_NAME.value}`;
-    const containerName = await executeDocker(command);
+    const containerName = await executeDocker(command, this.options.verbose);
     if (containerName !== this.env.MYSQL_CONTAINER_NAME.value) {
       throw new Error('Failed to stop MySQL container');
     }
@@ -334,22 +367,28 @@ class MySQLService {
    */
   async remove() {
     await verifyEnvironment(this.env);
-    const containerId = await getContainerId(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerId = await getContainerId(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (!containerId) {
       throw new Error('MySQL container does not exist');
     }
-    const containerRunning = await isContainerRunning(this.env.MYSQL_CONTAINER_NAME.value);
+    const containerRunning = await isContainerRunning(
+      this.env.MYSQL_CONTAINER_NAME.value,
+      this.options.verbose,
+    );
     if (containerRunning) {
       await this.stop();
     }
     const containerCommand = `container rm ${this.env.MYSQL_CONTAINER_NAME.value}`;
-    const containerName = await executeDocker(containerCommand);
+    const containerName = await executeDocker(containerCommand, this.options.verbose);
     if (containerName !== this.env.MYSQL_CONTAINER_NAME.value) {
       throw new Error('Failed to remove MySQL container');
     }
     console.info('Removed MySQL container');
     const volumeCommand = `volume rm ${this.env.MYSQL_CONTAINER_NAME.value}`;
-    const volumeName = await executeDocker(volumeCommand);
+    const volumeName = await executeDocker(volumeCommand, this.options.verbose);
     if (volumeName !== this.env.MYSQL_CONTAINER_NAME.value) {
       throw new Error('Failed to remove MySQL volume');
     }
