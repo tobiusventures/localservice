@@ -305,6 +305,14 @@ class MySQLService {
   }
 
   /**
+   * Alias populate to seed
+   * @return {Promise<Boolean>} seeded
+   */
+  populate() {
+    return this.seed();
+  }
+
+  /**
    * Start the existing MySQL Service container
    * @return {Promise<Boolean>} started
    */

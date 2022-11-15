@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 const {
   executeDocker,
   getContainerId,
@@ -153,11 +154,18 @@ class MinIOService {
    * Populate the existing MinIO Service container database with seed data
    * @return {Promise<Boolean>} seeded
    */
-  /* eslint-disable class-methods-use-this */
   async seed() {
     console.info('Seed is not implemented for MinIO');
+    return false;
   }
-  /* eslint-enable class-methods-use-this */
+
+  /**
+   * Alias populate to seed
+   * @return {Promise<Boolean>} seeded
+   */
+  populate() {
+    return this.seed();
+  }
 
   /**
    * Start the existing MinIO Service container
