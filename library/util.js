@@ -68,9 +68,9 @@ const printConfig = async (displayServiceName, env) => {
   const values = Object.values(env).map((obj) => obj.value || '');
   const defaultValues = Object.values(env).map((obj) => obj.defaultValue || '');
   const lengthComparator = (a, b) => ((a.length > b.length) ? a : b);
-  const keyLength = keys.reduce(lengthComparator, '').length + 3;
-  const defaultValueLength = defaultValues.reduce(lengthComparator, '').length + 3;
-  const valueLength = values.reduce(lengthComparator, '').length + 3;
+  const keyLength = Math.max(10, keys.reduce(lengthComparator, '').length + 3);
+  const defaultValueLength = Math.max(10, defaultValues.reduce(lengthComparator, '').length + 3);
+  const valueLength = Math.max(10, values.reduce(lengthComparator, '').length + 3);
   console.info([
     '  ',
     'Key'.padEnd(keyLength),
