@@ -151,20 +151,20 @@ class MinIOService {
   }
 
   /**
-   * Populate the existing MinIO Service container database with seed data
-   * @return {Promise<Boolean>} seeded
+   * Push files up to the existing MinIO Service container bucket
+   * @return {Promise<Boolean>} pushed
    */
-  async seed() {
-    console.info('Seed is not implemented for MinIO');
+  async push() {
+    console.info('Push is not implemented for MinIO');
     return false;
   }
 
   /**
-   * Alias populate to seed
-   * @return {Promise<Boolean>} seeded
+   * Alias seed to push
+   * @return {Promise<Boolean>} pushed
    */
-  populate() {
-    return this.seed();
+  seed() {
+    return this.push();
   }
 
   /**

@@ -48,8 +48,8 @@ function showUsage() {
   console.info('');
   console.info('  config    Get service container config info');
   console.info('  create    Create new service container');
+  console.info('  push      Push data to service container');
   console.info('  remove    Remove service container');
-  console.info('  populate  Populate service container with existing data');
   console.info('  start     Start service container');
   console.info('  status    Get service container status info');
   console.info('  stop      Stop service container');
@@ -70,7 +70,7 @@ const commandName = args[1];
 const commands = [
   'config',
   'create',
-  'populate',
+  'push',
   'remove',
   'seed',
   'start',

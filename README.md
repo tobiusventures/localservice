@@ -29,8 +29,8 @@ Commands:
 
   config    Get service container config info
   create    Create new service container
+  push      Push data to service container
   remove    Remove service container
-  populate  Populate service container with existing data
   start     Start service container
   status    Get service container status info
   stop      Stop service container

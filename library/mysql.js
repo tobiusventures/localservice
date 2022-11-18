@@ -280,10 +280,10 @@ class MySQLService {
   }
 
   /**
-   * Populate the existing MySQL Service container database with seed data
-   * @return {Promise<Boolean>} seeded
+   * Push seed data to the existing MySQL Service container database
+   * @return {Promise<Boolean>} pushed
    */
-  async seed() {
+  async push() {
     await verifyEnvironment(this.env);
     const containerId = await getContainerId(
       this.env.MYSQL_CONTAINER_NAME.value,
@@ -305,11 +305,11 @@ class MySQLService {
   }
 
   /**
-   * Alias populate to seed
-   * @return {Promise<Boolean>} seeded
+   * Alias seed to push
+   * @return {Promise<Boolean>} pushed
    */
-  populate() {
-    return this.seed();
+  seed() {
+    return this.push();
   }
 
   /**
