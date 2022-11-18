@@ -5,7 +5,6 @@ const {
   getContainerId,
   isContainerRunning,
   printInfo,
-  printStatus,
   verifyEnvironment,
 } = require('./util');
 
