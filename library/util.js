@@ -56,21 +56,23 @@ const isContainerRunning = async (containerName, verbose = false) => {
 };
 
 /**
- * Print config information
+ * Print service container information
  * @param {String} displayServiceName
  * @param {Object} env
+ * @param {Boolean} verbose [default=false]
  * @return {Promise}
  */
-const printConfig = async (displayServiceName, env) => {
-  console.info(`${displayServiceName} Configuration:`);
+const printInfo = async (displayServiceName, env, verbose = false) => {
+  console.info(`${displayServiceName} Environment Variables:`);
   console.info('');
+  const minWidth = 16;
   const keys = Object.keys(env);
   const values = Object.values(env).map((obj) => obj.value || '');
   const defaultValues = Object.values(env).map((obj) => obj.defaultValue || '');
-  const lengthComparator = (a, b) => ((a.length > b.length) ? a : b);
-  const keyLength = Math.max(10, keys.reduce(lengthComparator, '').length + 3);
-  const defaultValueLength = Math.max(10, defaultValues.reduce(lengthComparator, '').length + 3);
-  const valueLength = Math.max(10, values.reduce(lengthComparator, '').length + 3);
+  const lengthComparator = (a, b) => ((a.toString().length > b.toString().length) ? a : b);
+  const keyLength = Math.max(minWidth, keys.reduce(lengthComparator, '').length + 3);
+  const defaultValueLength = Math.max(minWidth, defaultValues.reduce(lengthComparator, '').length + 3);
+  const valueLength = Math.max(minWidth, values.reduce(lengthComparator, '').length + 3);
   console.info([
     '  ',
     'Key'.padEnd(keyLength),
@@ -80,36 +82,56 @@ const printConfig = async (displayServiceName, env) => {
   ].join(''));
   console.info([
     '  ',
-    '-'.repeat(keyLength - 3), '   ',
-    '-'.repeat(defaultValueLength - 3), '   ',
-    '-'.repeat(valueLength - 3), '   ',
-    '-'.repeat(8),
+    '-'.repeat(keyLength - 3).padEnd(keyLength),
+    '-'.repeat(defaultValueLength - 3).padEnd(defaultValueLength),
+    '-'.repeat(valueLength - 3).padEnd(valueLength),
+    '-'.repeat(8).padEnd(11),
   ].join(''));
   keys.forEach((key) => {
     console.info([
       '  ',
       key.padEnd(keyLength),
       (env[key].defaultValue || '').toString().padEnd(defaultValueLength),
-      (env[key].value || 'none').toString().padEnd(valueLength),
+      (env[key].value || '').toString().padEnd(valueLength),
       (env[key].required ? 'Y' : 'N').padEnd(11),
     ].join(''));
   });
-};
-
-/**
- * Print status information
- * @param {String} displayServiceName
- * @param {String} containerId
- * @param {Boolean} containerRunning
- * @param {Boolean} serviceReady
- * @return {Promise}
- */
-const printStatus = async (displayServiceName, containerId, containerRunning, serviceReady) => {
-  console.info(`${displayServiceName} Status:`);
   console.info('');
-  console.info(`  Container ID      ${containerId || 'Unknown'}`);
-  console.info(`  Container Status  ${!containerId ? 'N/A' : (containerRunning ? 'Running' : 'Stopped')}`);
-  console.info(`  Service Status    ${!containerId ? 'N/A' : (serviceReady ? 'Ready' : 'Not Ready')}`);
+  console.info(`${displayServiceName} Container Status:`);
+  console.info('');
+  const containerId = await getContainerId(
+    env[`${displayServiceName.toUpperCase()}_CONTAINER_NAME`].value,
+    verbose,
+  );
+  const containerRunning = await isContainerRunning(
+    env[`${displayServiceName.toUpperCase()}_CONTAINER_NAME`].value,
+    verbose,
+  );
+  console.info([
+    '  ',
+    'Name'.padEnd(minWidth + 3),
+    'Value'.padEnd(minWidth + 3),
+  ].join(''));
+  console.info([
+    '  ',
+    '-'.repeat(minWidth).padEnd(minWidth + 3),
+    '-'.repeat(minWidth).padEnd(minWidth + 3),
+  ].join(''));
+  console.info([
+    '  ',
+    'Container Name'.padEnd(minWidth + 3),
+    `${env[`${displayServiceName.toUpperCase()}_CONTAINER_NAME`].value || 'Undefined'}`.padEnd(minWidth),
+  ].join(''));
+  console.info([
+    '  ',
+    'Container ID'.padEnd(minWidth + 3),
+    `${containerId || 'Unknown'}`.padEnd(minWidth),
+  ].join(''));
+  console.info([
+    '  ',
+    'Container Status'.padEnd(minWidth + 3),
+    `${!containerId ? 'N/A' : (containerRunning ? 'Running' : 'Stopped')}`.padEnd(minWidth),
+  ].join(''));
 };
 
 /**
@@ -137,7 +159,6 @@ module.exports = {
   findFilePaths,
   getContainerId,
   isContainerRunning,
-  printConfig,
-  printStatus,
+  printInfo,
   verifyEnvironment,
 };

@@ -3,8 +3,7 @@ const {
   executeDocker,
   getContainerId,
   isContainerRunning,
-  printConfig,
-  printStatus,
+  printInfo,
   verifyEnvironment,
 } = require('./util');
 
@@ -41,7 +40,7 @@ class MinIOService {
       MINIO_EXPOSED_WEB_PORT: {
         key: 'MINIO_EXPOSED_WEB_PORT',
         required: true,
-        description: 'Local network port used to expose MinIO Web Console',
+        description: 'Local network port used to expose MinIO Web tool',
         value: process.env.MINIO_EXPOSED_WEB_PORT || '9001',
         defaultValue: '9001',
       },
@@ -98,32 +97,6 @@ class MinIOService {
   }
 
   /**
-   * Print config information
-   * @param {Object} env
-   * @return {Promise}
-   */
-  async config() {
-    printConfig('MinIO', this.env);
-  }
-
-  /**
-   * Print status information
-   * @return {Promise}
-   */
-  async status() {
-    await verifyEnvironment(this.env);
-    const containerId = await getContainerId(
-      this.env.MINIO_CONTAINER_NAME.value,
-      this.options.verbose,
-    );
-    const containerRunning = await isContainerRunning(
-      this.env.MINIO_CONTAINER_NAME.value,
-      this.options.verbose,
-    );
-    printStatus('MinIO', containerId, containerRunning, containerRunning);
-  }
-
-  /**
    * Create a new MinIO Service container
    * @return {Promise<String>} containerId
    */
@@ -151,20 +124,20 @@ class MinIOService {
   }
 
   /**
+   * Print service container information
+   * @return {Promise}
+   */
+  async info() {
+    printInfo('MinIO', this.env, this.verbose);
+  }
+
+  /**
    * Push files up to the existing MinIO Service container bucket
    * @return {Promise<Boolean>} pushed
    */
   async push() {
     console.info('Push is not implemented for MinIO');
     return false;
-  }
-
-  /**
-   * Alias seed to push
-   * @return {Promise<Boolean>} pushed
-   */
-  seed() {
-    return this.push();
   }
 
   /**

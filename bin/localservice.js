@@ -46,12 +46,11 @@ function showUsage() {
   console.info('');
   console.info('Commands:');
   console.info('');
-  console.info('  config    Get service container config info');
   console.info('  create    Create new service container');
+  console.info('  info      Get service container info');
   console.info('  push      Push data to service container');
   console.info('  remove    Remove service container');
   console.info('  start     Start service container');
-  console.info('  status    Get service container status info');
   console.info('  stop      Stop service container');
   process.exit();
 }
@@ -64,12 +63,18 @@ if (args.length && (args[0] === '-v' || args[0] === '--verbose')) {
   args.shift();
 }
 const serviceName = args[0];
-const commandName = args[1];
+let commandName = args[1];
 
 // usage
+const commandAliases = {
+  config: 'info',
+  seed: 'push',
+  status: 'info',
+};
 const commands = [
   'config',
   'create',
+  'info',
   'push',
   'remove',
   'seed',
@@ -77,6 +82,9 @@ const commands = [
   'status',
   'stop',
 ];
+if (Object.keys(commandAliases).includes(commandName)) {
+  commandName = commandAliases[commandName];
+}
 if (!serviceName || !commandName || !commands.includes(commandName)) {
   showUsage();
 }

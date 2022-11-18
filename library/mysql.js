@@ -4,7 +4,7 @@ const {
   findFilePaths,
   getContainerId,
   isContainerRunning,
-  printConfig,
+  printInfo,
   printStatus,
   verifyEnvironment,
 } = require('./util');
@@ -227,33 +227,6 @@ class MySQLService {
   }
 
   /**
-   * Print config information
-   * @param {Object} env
-   * @return {Promise}
-   */
-  async config() {
-    printConfig('MySQL', this.env);
-  }
-
-  /**
-   * Print status information
-   * @return {Promise}
-   */
-  async status() {
-    await verifyEnvironment(this.env);
-    const containerId = await getContainerId(
-      this.env.MYSQL_CONTAINER_NAME.value,
-      this.options.verbose,
-    );
-    const containerRunning = await isContainerRunning(
-      this.env.MYSQL_CONTAINER_NAME.value,
-      this.options.verbose,
-    );
-    const serviceReady = await this._isServiceReady();
-    printStatus('MySQL', containerId, containerRunning, serviceReady);
-  }
-
-  /**
    * Create a new MySQL Service container
    * @return {Promise<String>} containerId
    */
@@ -280,6 +253,14 @@ class MySQLService {
   }
 
   /**
+   * Print service container information
+   * @return {Promise}
+   */
+  async info() {
+    printInfo('MySQL', this.env, this.verbose);
+  }
+
+  /**
    * Push seed data to the existing MySQL Service container database
    * @return {Promise<Boolean>} pushed
    */
@@ -302,14 +283,6 @@ class MySQLService {
     await this._waitUntilServiceIsReady();
     await this._seedDatabase();
     return true;
-  }
-
-  /**
-   * Alias seed to push
-   * @return {Promise<Boolean>} pushed
-   */
-  seed() {
-    return this.push();
   }
 
   /**
