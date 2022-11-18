@@ -25,7 +25,7 @@ Services (implemented)
 
 Commands (universal)
   create    Create new service container
-  info      Get service config and container info
+  info      Get service env and container info
   push      Push data to running service container
   remove    Remove existing service container
   start     Start stopped service container
