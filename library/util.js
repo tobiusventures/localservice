@@ -67,6 +67,14 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
   const minWidth = 16;
 
   // Environment Variables
+  let verified = true;
+  let verifiedError = undefined;
+  try {
+    verified = await verifyEnvironment(env);
+  } catch (err) {
+    verified = false;
+    verifiedError = err.message;
+  }
   const keys = Object.keys(env);
   const values = Object.values(env).map((obj) => obj.value || '');
   const defaultValues = Object.values(env).map((obj) => obj.defaultValue || '');
@@ -100,6 +108,11 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
       (env[key].value || '').toString().padEnd(valueLength),
     ].join(''));
   });
+  if (verifiedError) {
+    console.info(`  ${'~ '.repeat((keyLength + 11 + defaultValueLength + valueLength - 3) / 2)}`);
+    console.info('  ERROR');
+    console.info(`  ${verifiedError}`);
+  }
 
   // Divider
   console.info();
@@ -108,6 +121,11 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
   console.info(`  ${headerCharacter.repeat((minWidth + 3) * 2 - 3)}`);
   console.info(`  ${displayServiceName} Container Status`);
   console.info(`  ${headerCharacter.repeat((minWidth + 3) * 2 - 3)}`);
+  if (verifiedError) {
+    console.info('  ERROR');
+    console.info('  Container status commands will not run until env var errors are resolved');
+    return;
+  }
   const containerId = await getContainerId(
     env[`${displayServiceName.toUpperCase()}_CONTAINER_NAME`].value,
     verbose,
