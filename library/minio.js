@@ -1,9 +1,9 @@
+/* eslint-disable class-methods-use-this */
 const {
   executeDocker,
   getContainerId,
   isContainerRunning,
-  printConfig,
-  printStatus,
+  printInfo,
   verifyEnvironment,
 } = require('./util');
 
@@ -40,7 +40,7 @@ class MinIOService {
       MINIO_EXPOSED_WEB_PORT: {
         key: 'MINIO_EXPOSED_WEB_PORT',
         required: true,
-        description: 'Local network port used to expose MinIO Web Console',
+        description: 'Local network port used to expose MinIO Web tool',
         value: process.env.MINIO_EXPOSED_WEB_PORT || '9001',
         defaultValue: '9001',
       },
@@ -57,6 +57,13 @@ class MinIOService {
         description: 'Path to the preferred MinIO Service library file folder',
         value: process.env.MINIO_PATH || '/data',
         defaultValue: '/data',
+      },
+      MINIO_PUSH_FILES: {
+        key: 'MINIO_PUSH_FILES',
+        required: false,
+        description: 'Path to MinIO object storage file glob(s) to push (upload) during first time setup (separated by commas)',
+        value: process.env.MINIO_PUSH_FILES || process.env.MINIO_SEED_FILES || undefined,
+        defaultValue: undefined,
       },
       MINIO_ROOT_USER: {
         key: 'MINIO_ROOT_USER',
@@ -86,40 +93,7 @@ class MinIOService {
         value: process.env.MINIO_SERVICE_WAIT_MAX_RETRIES || 30,
         defaultValue: 30,
       },
-      MINIO_SEED_FILES: {
-        key: 'MINIO_SEED_FILES',
-        required: false,
-        description: 'Path to MinIO object storage seed file glob(s) to import during first time setup (separate by commas)',
-        value: process.env.MINIO_SEED_FILES || undefined,
-        defaultValue: undefined,
-      },
     };
-  }
-
-  /**
-   * Print config information
-   * @param {Object} env
-   * @return {Promise}
-   */
-  async config() {
-    printConfig('MinIO', this.env);
-  }
-
-  /**
-   * Print status information
-   * @return {Promise}
-   */
-  async status() {
-    await verifyEnvironment(this.env);
-    const containerId = await getContainerId(
-      this.env.MINIO_CONTAINER_NAME.value,
-      this.options.verbose,
-    );
-    const containerRunning = await isContainerRunning(
-      this.env.MINIO_CONTAINER_NAME.value,
-      this.options.verbose,
-    );
-    printStatus('MinIO', containerId, containerRunning, containerRunning);
   }
 
   /**
@@ -150,14 +124,21 @@ class MinIOService {
   }
 
   /**
-   * Populate the existing MinIO Service container database with seed data
-   * @return {Promise<Boolean>} seeded
+   * Print service container information
+   * @return {Promise}
    */
-  /* eslint-disable class-methods-use-this */
-  async seed() {
-    console.info('Seed is not implemented for MinIO');
+  async info() {
+    printInfo('MinIO', this.env, this.verbose);
   }
-  /* eslint-enable class-methods-use-this */
+
+  /**
+   * Push files up to the existing MinIO Service container bucket
+   * @return {Promise<Boolean>} pushed
+   */
+  async push() {
+    console.info('Push is not implemented for MinIO');
+    return false;
+  }
 
   /**
    * Start the existing MinIO Service container
