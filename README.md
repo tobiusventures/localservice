@@ -65,9 +65,7 @@ Key																| Required	| Default					| Description
 `MYSQL_SERVICE_WAIT_INTERVAL`			| N					| 1000						| Number of milliseconds to wait between MySQL service uptime test retries
 `MYSQL_SERVICE_WAIT_MAX_RETRIES`	| N					| 30							| Maximum number of times to retry MySQL service uptime test before timing out
 
-<!--
+## License
 
-Official Docker Images
-https://github.com/docker-library/official-images/tree/master/library
+[MIT License](LICENSE)
 
--->
