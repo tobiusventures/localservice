@@ -15,24 +15,21 @@ Install and manage services for your local development environments.
 
 Usage: localservice [options] <service> <command>
 
-Options:
-
+Options
   -v, --verbose   Show verbose info (e.g. raw docker commands, etc)
   -h, --help      Show this help screen
 
-Services:
-
+Services (implemented)
   minio     MinIO object storage (s3 compatible)
   mysql     MySQL database
 
-Commands:
-
+Commands (universal)
   create    Create new service container
-  info      Get service container info
-  push      Push data to service container
-  remove    Remove service container
-  start     Start service container
-  stop      Stop service container
+  info      Get service config and container info
+  push      Push data to running service container
+  remove    Remove existing service container
+  start     Start stopped service container
+  stop      Stop running service container
 ```
 
 ### MinIO Environment Variables

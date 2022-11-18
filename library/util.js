@@ -63,9 +63,10 @@ const isContainerRunning = async (containerName, verbose = false) => {
  * @return {Promise}
  */
 const printInfo = async (displayServiceName, env, verbose = false) => {
-  console.info(`${displayServiceName} Environment Variables:`);
-  console.info('');
+  const headerCharacter = '=';
   const minWidth = 16;
+
+  // Environment Variables
   const keys = Object.keys(env);
   const values = Object.values(env).map((obj) => obj.value || '');
   const defaultValues = Object.values(env).map((obj) => obj.defaultValue || '');
@@ -73,32 +74,40 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
   const keyLength = Math.max(minWidth, keys.reduce(lengthComparator, '').length + 3);
   const defaultValueLength = Math.max(minWidth, defaultValues.reduce(lengthComparator, '').length + 3);
   const valueLength = Math.max(minWidth, values.reduce(lengthComparator, '').length + 3);
+  console.info(`  ${headerCharacter.repeat(keyLength + 11 + defaultValueLength + valueLength - 3)}`);
+  console.info(`  ${displayServiceName} Environment Variables`);
+  console.info(`  ${headerCharacter.repeat(keyLength + 11 + defaultValueLength + valueLength - 3)}`);
   console.info([
     '  ',
     'Key'.padEnd(keyLength),
+    'Required'.padEnd(11),
     'Default'.padEnd(defaultValueLength),
     'Value'.padEnd(valueLength),
-    'Required'.padEnd(11),
   ].join(''));
   console.info([
     '  ',
     '-'.repeat(keyLength - 3).padEnd(keyLength),
+    '-'.repeat(8).padEnd(11),
     '-'.repeat(defaultValueLength - 3).padEnd(defaultValueLength),
     '-'.repeat(valueLength - 3).padEnd(valueLength),
-    '-'.repeat(8).padEnd(11),
   ].join(''));
   keys.forEach((key) => {
     console.info([
       '  ',
       key.padEnd(keyLength),
+      (env[key].required ? 'Y' : 'N').padEnd(11),
       (env[key].defaultValue || '').toString().padEnd(defaultValueLength),
       (env[key].value || '').toString().padEnd(valueLength),
-      (env[key].required ? 'Y' : 'N').padEnd(11),
     ].join(''));
   });
-  console.info('');
-  console.info(`${displayServiceName} Container Status:`);
-  console.info('');
+
+  // Divider
+  console.info();
+
+  // Container Status
+  console.info(`  ${headerCharacter.repeat((minWidth + 3) * 2 - 3)}`);
+  console.info(`  ${displayServiceName} Container Status`);
+  console.info(`  ${headerCharacter.repeat((minWidth + 3) * 2 - 3)}`);
   const containerId = await getContainerId(
     env[`${displayServiceName.toUpperCase()}_CONTAINER_NAME`].value,
     verbose,
@@ -109,7 +118,7 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
   );
   console.info([
     '  ',
-    'Name'.padEnd(minWidth + 3),
+    'Subject'.padEnd(minWidth + 3),
     'Value'.padEnd(minWidth + 3),
   ].join(''));
   console.info([

@@ -34,24 +34,21 @@ class LocalService {
 function showUsage() {
   console.info('Usage: localservice [options] <service> <command>');
   console.info('');
-  console.info('Services:');
-  console.info('');
-  console.info('  minio     MinIO object storage (s3 compatible)');
-  console.info('  mysql     MySQL database');
-  console.info('');
-  console.info('Options:');
-  console.info('');
+  console.info('Options');
   console.info('  -v, --verbose   Show verbose info (e.g. raw docker commands, etc)');
   console.info('  -h, --help      Show this help screen');
   console.info('');
-  console.info('Commands:');
+  console.info('Services (implemented)');
+  console.info('  minio     MinIO object storage (s3 compatible)');
+  console.info('  mysql     MySQL database');
   console.info('');
+  console.info('Commands (universal)');
   console.info('  create    Create new service container');
-  console.info('  info      Get service container info');
-  console.info('  push      Push data to service container');
-  console.info('  remove    Remove service container');
-  console.info('  start     Start service container');
-  console.info('  stop      Stop service container');
+  console.info('  info      Get service config and container info');
+  console.info('  push      Push data to running service container');
+  console.info('  remove    Remove existing service container');
+  console.info('  start     Start stopped service container');
+  console.info('  stop      Stop running service container');
   process.exit();
 }
 
