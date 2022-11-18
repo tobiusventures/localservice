@@ -74,18 +74,18 @@ class MySQLService {
         value: process.env.MYSQL_PATH || '/var/lib/mysql',
         defaultValue: '/var/lib/mysql',
       },
+      MYSQL_PUSH_FILES: {
+        key: 'MYSQL_PUSH_FILES',
+        required: false,
+        description: 'Path to SQL file glob(s) to push (execute) during first time setup (separated by commas)',
+        value: process.env.MYSQL_PUSH_FILES || process.env.MYSQL_SEED_FILES || undefined,
+        defaultValue: undefined,
+      },
       MYSQL_ROOT_PASSWORD: {
         key: 'MYSQL_ROOT_PASSWORD',
         required: true,
         description: 'Password to use when creating the MySQL Service database root user',
         value: process.env.MYSQL_ROOT_PASSWORD || undefined,
-        defaultValue: undefined,
-      },
-      MYSQL_SEED_FILES: {
-        key: 'MYSQL_SEED_FILES',
-        required: false,
-        description: 'Path to SQL seed file glob(s) to execute during first time setup (separate by commas)',
-        value: process.env.MYSQL_SEED_FILES || undefined,
         defaultValue: undefined,
       },
       MYSQL_SERVICE_WAIT_INTERVAL: {

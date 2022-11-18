@@ -43,9 +43,9 @@ Key																| Required	| Default	| Description
 `MINIO_EXPOSED_WEB_PORT`					| Y					| 9001		| Local network port used to expose MinIO Web tool
 `MINIO_IMAGE`											| Y					| _none_	| MinIO Server Docker image for your processor: https://hub.docker.com/r/minio/minio/tags
 `MINIO_PATH`											| Y					| _none_	| Path to the preferred MinIO Service library file folder
+`MINIO_PUSH_FILES`								| N					| _none_	| Path to MinIO object storage file glob(s) to push (upload) during first time setup (separated by commas)
 `MINIO_ROOT_PASSWORD`							| Y					| _none_	| Username to use when creating the MinIO Service root user
 `MINIO_ROOT_USER`									| Y					| _none_	| Password to use when creating the MinIO Service root user
-`MINIO_SEED_FILES`								| N					| _none_	| Path to MinIO object storage seed file glob(s) to import during first time setup (separate by commas)
 `MINIO_SERVICE_WAIT_INTERVAL`			| N					| 1000		| Number of milliseconds to wait between MinIO service uptime test retries
 `MINIO_SERVICE_WAIT_MAX_RETRIES`	| N					| 30			| Maximum number of times to retry MinIO service uptime test before timing out
 
@@ -60,8 +60,8 @@ Key																| Required	| Default					| Description
 `MYSQL_EXPOSED_PORT`							| Y					| 3306						| Local network port used to expose MySQL Service
 `MYSQL_IMAGE`											| Y					| _none_					| MySQL Server Docker image for your processor: https://hub.docker.com/r/mysql/mysql-server/tags
 `MYSQL_PATH`											| Y					| /var/lib/mysql	| Path to the preferred MySQL Service library file folder
+`MYSQL_PUSH_FILES`								| N					| _none_					| Path to SQL file glob(s) to push (execute) during first time setup (separated by commas)
 `MYSQL_ROOT_PASSWORD`							| Y					| _none_					| Password to use when creating the MySQL Service database root user
-`MYSQL_SEED_FILES`								| N					| _none_					| Path to SQL seed file glob(s) to execute during first time setup (separate by commas)
 `MYSQL_SERVICE_WAIT_INTERVAL`			| N					| 1000						| Number of milliseconds to wait between MySQL service uptime test retries
 `MYSQL_SERVICE_WAIT_MAX_RETRIES`	| N					| 30							| Maximum number of times to retry MySQL service uptime test before timing out
 

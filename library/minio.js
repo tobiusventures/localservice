@@ -58,6 +58,13 @@ class MinIOService {
         value: process.env.MINIO_PATH || '/data',
         defaultValue: '/data',
       },
+      MINIO_PUSH_FILES: {
+        key: 'MINIO_PUSH_FILES',
+        required: false,
+        description: 'Path to MinIO object storage file glob(s) to push (upload) during first time setup (separated by commas)',
+        value: process.env.MINIO_PUSH_FILES || process.env.MINIO_SEED_FILES || undefined,
+        defaultValue: undefined,
+      },
       MINIO_ROOT_USER: {
         key: 'MINIO_ROOT_USER',
         required: true,
@@ -85,13 +92,6 @@ class MinIOService {
         description: 'Maximum number of times to retry MinIO service uptime test before timing out',
         value: process.env.MINIO_SERVICE_WAIT_MAX_RETRIES || 30,
         defaultValue: 30,
-      },
-      MINIO_SEED_FILES: {
-        key: 'MINIO_SEED_FILES',
-        required: false,
-        description: 'Path to MinIO object storage seed file glob(s) to import during first time setup (separate by commas)',
-        value: process.env.MINIO_SEED_FILES || undefined,
-        defaultValue: undefined,
       },
     };
   }
