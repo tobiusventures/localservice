@@ -44,7 +44,7 @@ function showUsage() {
   console.info('');
   console.info('Commands (universal)');
   console.info('  create    Create new service container');
-  console.info('  info      Get service config and container info');
+  console.info('  info      Get service env and container info');
   console.info('  push      Push data to running service container');
   console.info('  remove    Remove existing service container');
   console.info('  start     Start stopped service container');
@@ -65,18 +65,16 @@ let commandName = args[1];
 // usage
 const commandAliases = {
   config: 'info',
+  env: 'info',
   seed: 'push',
   status: 'info',
 };
 const commands = [
-  'config',
   'create',
   'info',
   'push',
   'remove',
-  'seed',
   'start',
-  'status',
   'stop',
 ];
 if (Object.keys(commandAliases).includes(commandName)) {
