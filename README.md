@@ -10,7 +10,7 @@ Install and manage services for your local development environments.
 ## Usage
 
 ```text
-[~] npm install localservice
+[~] npm i localservice
 [~] npx localservice -h
 
 Usage: localservice [options] <service> <command>
