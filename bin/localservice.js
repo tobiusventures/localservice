@@ -102,47 +102,19 @@ program.command('remove')
   .argument('<service>', 'container service')
   .action((service) => execute(service, 'remove'));
 
-// parse command line arguments
-program.parse();
+// support legacy aliases (silently)
+const legacyAliases = {
+  config: 'info',
+  env: 'info',
+  seed: 'push',
+  status: 'info',
+};
+const args = process.argv;
+Object.keys(legacyAliases).forEach((key) => {
+  if (args[2] === key) {
+    args[2] = legacyAliases[key];
+  }
+});
 
-// // cli args
-// const args = process.argv.slice(2);
-// let verbose = false;
-// if (args.length && (args[0] === '-v' || args[0] === '--verbose')) {
-//   verbose = true;
-//   args.shift();
-// }
-// const serviceName = args[0];
-// let commandName = args[1];
-//
-// // usage
-// const commandAliases = {
-//   config: 'info',
-//   env: 'info',
-//   seed: 'push',
-//   status: 'info',
-// };
-// const commands = [
-//   'create',
-//   'info',
-//   'push',
-//   'remove',
-//   'start',
-//   'stop',
-// ];
-// if (Object.keys(commandAliases).includes(commandName)) {
-//   commandName = commandAliases[commandName];
-// }
-// if (!serviceName || !commandName || !commands.includes(commandName)) {
-//   showUsage();
-// }
-//
-// // run
-// const localService = new LocalService(serviceName, {
-//   cwd: process.cwd(),
-//   verbose,
-// });
-// localService.service[commandName]().catch((err) => {
-//   console.error(err.message);
-//   process.exit(1);
-// });
+// parse command line arguments
+program.parse(args);
