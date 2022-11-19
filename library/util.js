@@ -56,6 +56,26 @@ const isContainerRunning = async (containerName, verbose = false) => {
 };
 
 /**
+ * Verify service defined environment variables
+ * @param {Object} env
+ * @return {Promise<Boolean>}
+ */
+const verifyEnvironment = async (env) => {
+  const missing = [];
+  Object.keys(env).forEach((key) => {
+    if (env[key].required) {
+      if (!env[key].value) {
+        missing.push(key);
+      }
+    }
+  });
+  if (missing.length) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+  return true;
+};
+
+/**
  * Print service container information
  * @param {String} displayServiceName
  * @param {Object} env
@@ -67,12 +87,10 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
   const minWidth = 16;
 
   // Environment Variables
-  let verified = true;
-  let verifiedError = undefined;
+  let verifiedError;
   try {
-    verified = await verifyEnvironment(env);
+    await verifyEnvironment(env);
   } catch (err) {
-    verified = false;
     verifiedError = err.message;
   }
   const keys = Object.keys(env);
@@ -159,26 +177,6 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
     'Container Status'.padEnd(minWidth + 3),
     `${!containerId ? 'N/A' : (containerRunning ? 'Running' : 'Stopped')}`.padEnd(minWidth),
   ].join(''));
-};
-
-/**
- * Verify service defined environment variables
- * @param {Object} env
- * @return {Promise<Boolean>}
- */
-const verifyEnvironment = async (env) => {
-  const missing = [];
-  Object.keys(env).forEach((key) => {
-    if (env[key].required) {
-      if (!env[key].value) {
-        missing.push(key);
-      }
-    }
-  });
-  if (missing.length) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-  }
-  return true;
 };
 
 module.exports = {
