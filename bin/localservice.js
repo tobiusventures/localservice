@@ -102,19 +102,5 @@ program.command('remove')
   .argument('<service>', 'container service')
   .action((service) => execute(service, 'remove'));
 
-// support legacy aliases (silently)
-const legacyAliases = {
-  config: 'info',
-  env: 'info',
-  seed: 'push',
-  status: 'info',
-};
-const args = process.argv;
-Object.keys(legacyAliases).forEach((key) => {
-  if (args[2] === key) {
-    args[2] = legacyAliases[key];
-  }
-});
-
 // parse command line arguments
-program.parse(args);
+program.parse();
