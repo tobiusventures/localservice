@@ -2,6 +2,11 @@
 
 require('dotenv/config');
 
+const { Command } = require('commander');
+const { version } = require('../package.json');
+
+const program = new Command();
+
 /**
  * Local Service
  * @class LocalService
@@ -28,68 +33,116 @@ class LocalService {
 }
 
 /**
- * Show usage instructions
- * @return Void
+ * Execute service command
+ * @param {String} serviceName
+ * @param {String} commandName
  */
-function showUsage() {
-  console.info('Usage: localservice [options] <service> <command>');
-  console.info('');
-  console.info('Options');
-  console.info('  -v, --verbose   Show verbose info (e.g. raw docker commands, etc)');
-  console.info('  -h, --help      Show this help screen');
-  console.info('');
-  console.info('Services (implemented)');
-  console.info('  minio     MinIO object storage (s3 compatible)');
-  console.info('  mysql     MySQL database');
-  console.info('');
-  console.info('Commands (universal)');
-  console.info('  create    Create new service container');
-  console.info('  info      Get service env and container info');
-  console.info('  push      Push data to running service container');
-  console.info('  remove    Remove existing service container');
-  console.info('  start     Start stopped service container');
-  console.info('  stop      Stop running service container');
-  process.exit();
-}
-
-// cli args
-const args = process.argv.slice(2);
-let verbose = false;
-if (args.length && (args[0] === '-v' || args[0] === '--verbose')) {
-  verbose = true;
-  args.shift();
-}
-const serviceName = args[0];
-let commandName = args[1];
-
-// usage
-const commandAliases = {
-  config: 'info',
-  env: 'info',
-  seed: 'push',
-  status: 'info',
+const execute = (serviceName, commandName) => {
+  const localService = new LocalService(serviceName, {
+    cwd: process.cwd(),
+    verbose: process.env.VERBOSE && (process.env.VERBOSE === 'true'),
+  });
+  localService.service[commandName]().catch((err) => {
+    console.error(err.message);
+    process.exit(1);
+  });
 };
-const commands = [
-  'create',
-  'info',
-  'push',
-  'remove',
-  'start',
-  'stop',
-];
-if (Object.keys(commandAliases).includes(commandName)) {
-  commandName = commandAliases[commandName];
-}
-if (!serviceName || !commandName || !commands.includes(commandName)) {
-  showUsage();
-}
 
-// run
-const localService = new LocalService(serviceName, {
-  cwd: process.cwd(),
-  verbose,
+// configure program
+program
+  .name('npx localservice')
+  .description('Manage local services (utilizes Docker)')
+  .version(version)
+  .option('-v, --verbose', 'output verbose info (e.g. raw Docker commands)')
+  .helpOption('-h, --help', 'display general help and usage info')
+  .addHelpCommand('help <command>', 'Display help for specific <command>');
+
+// support verbose option
+program.on('option:verbose', () => {
+  process.env.VERBOSE = program.opts().verbose;
 });
-localService.service[commandName]().catch((err) => {
-  console.error(err.message);
-  process.exit(1);
-});
+
+// support info command
+program.command('info')
+  // .aliases(['config', 'status'])
+  .description('Display service info')
+  .argument('<service>', 'container service')
+  .action((service) => execute(service, 'info'));
+
+// support create command
+program.command('create')
+  .description('Create service container')
+  .argument('<service>', 'container service')
+  .action((service) => execute(service, 'create'));
+
+// support stop command
+program.command('stop')
+  .description('Stop service container')
+  .argument('<service>', 'container service')
+  .action((service) => execute(service, 'stop'));
+
+// support start command
+program.command('start')
+  .description('Start service container')
+  .argument('<service>', 'container service')
+  .action((service) => execute(service, 'start'));
+
+// support push command
+program.command('push')
+  // .alias('seed')
+  .description('Push data to service')
+  .argument('<service>', 'container service')
+  // @todo only env vars are supported right now, add support for this optional arg
+  // .argument('[data]', 'data to push to service (comma separated file globs)')
+  .action((service) => execute(service, 'push'));
+
+// support remove command
+program.command('remove')
+  .description('Remove service container')
+  .argument('<service>', 'container service')
+  .action((service) => execute(service, 'remove'));
+
+// parse command line arguments
+program.parse();
+
+// // cli args
+// const args = process.argv.slice(2);
+// let verbose = false;
+// if (args.length && (args[0] === '-v' || args[0] === '--verbose')) {
+//   verbose = true;
+//   args.shift();
+// }
+// const serviceName = args[0];
+// let commandName = args[1];
+//
+// // usage
+// const commandAliases = {
+//   config: 'info',
+//   env: 'info',
+//   seed: 'push',
+//   status: 'info',
+// };
+// const commands = [
+//   'create',
+//   'info',
+//   'push',
+//   'remove',
+//   'start',
+//   'stop',
+// ];
+// if (Object.keys(commandAliases).includes(commandName)) {
+//   commandName = commandAliases[commandName];
+// }
+// if (!serviceName || !commandName || !commands.includes(commandName)) {
+//   showUsage();
+// }
+//
+// // run
+// const localService = new LocalService(serviceName, {
+//   cwd: process.cwd(),
+//   verbose,
+// });
+// localService.service[commandName]().catch((err) => {
+//   console.error(err.message);
+//   process.exit(1);
+// });
