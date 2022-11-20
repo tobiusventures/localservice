@@ -65,7 +65,7 @@ program.on('option:verbose', () => {
 // support info command
 program.command('info')
   // .aliases(['config', 'status'])
-  .description('Display service info')
+  .description('Display service info (env vars and container status)')
   .argument('<service>', 'container service')
   .action((service) => execute(service, 'info'));
 
