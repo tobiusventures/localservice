@@ -72,7 +72,7 @@ Key																	| Required	| Default										| Description
 ---																	| ---				| ---												| ---
 `POSTGRES_CONTAINER_NAME`						| Y         | _none_										| Name used to identify PostgreSQL Service Docker container
 `POSTGRES_DATABASE`									| Y         | _none_										| Name used to identify PostgreSQL Service database
-`POSTGRES_EXPOSED_PORT`							| Y         | 3306											| Local network port used to expose PostgreSQL Service
+`POSTGRES_EXPOSED_PORT`							| Y         | 5432											| Local network port used to expose PostgreSQL Service
 `POSTGRES_IMAGE`										| Y         | _none_										| PostgreSQL Server Docker image for your processor: https://hub.docker.com/_/postgres/tags
 `POSTGRES_PATH`											| Y         | /var/lib/postgresql/data  | Path to the preferred PostgreSQL Service library file folder
 `POSTGRES_PUSH_FILES`								| N         | _none_                    | Path to SQL file glob(s) to push (execute) during first time setup (separated by commas)
