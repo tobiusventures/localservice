@@ -43,7 +43,7 @@ class PostgreSQLService {
         required: true,
         description: 'Local network port used to expose PostgreSQL Service',
         value: process.env.POSTGRES_EXPOSED_PORT || '5432',
-        defaultValue: '3306',
+        defaultValue: '5432',
       },
       POSTGRES_IMAGE: {
         key: 'POSTGRES_IMAGE',
