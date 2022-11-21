@@ -66,6 +66,21 @@ Key																| Required	| Default					| Description
 `MYSQL_SERVICE_WAIT_INTERVAL`			| N					| 1000						| Number of milliseconds to wait between MySQL service uptime test retries
 `MYSQL_SERVICE_WAIT_MAX_RETRIES`	| N					| 30							| Maximum number of times to retry MySQL service uptime test before timing out
 
+### PostgreSQL
+
+Key																	| Required	| Default										| Description
+---																	| ---				| ---												| ---
+`POSTGRES_CONTAINER_NAME`						| Y         | _none_										| Name used to identify PostgreSQL Service Docker container
+`POSTGRES_DATABASE`									| Y         | _none_										| Name used to identify PostgreSQL Service database
+`POSTGRES_EXPOSED_PORT`							| Y         | 3306											| Local network port used to expose PostgreSQL Service
+`POSTGRES_IMAGE`										| Y         | _none_										| PostgreSQL Server Docker image for your processor: https://hub.docker.com/_/postgres/tags
+`POSTGRES_PATH`											| Y         | /var/lib/postgresql/data  | Path to the preferred PostgreSQL Service library file folder
+`POSTGRES_PUSH_FILES`								| N         | _none_                    | Path to SQL file glob(s) to push (execute) during first time setup (separated by commas)
+`POSTGRES_SUPER_USER`								| Y         | _none_                    | Username to use when creating the PostgreSQL Service database SuperUser account
+`POSTGRES_SUPER_PASSWORD`						| Y         | _none_                    | Password to use when creating the PostgreSQL Service database SuperUser account
+`POSTGRES_SERVICE_WAIT_INTERVAL`		| N         | 1000                      | Number of milliseconds to wait between PostgreSQL service uptime test retries
+`POSTGRES_SERVICE_WAIT_MAX_RETRIES` | N         | 30                        | Maximum number of times to retry PostgreSQL service uptime test before timing out
+
 ## License
 
 [MIT License](LICENSE)
