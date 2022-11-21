@@ -175,19 +175,26 @@ class PostgreSQLService {
    */
   async _seedDatabase() {
     await verifyEnvironment(this.env);
-    const seedFilePaths = await findFilePaths(this.env.POSTGRES_PUSH_FILES.value.trim().split(',').sort());
+    if (!this.env.POSTGRES_PUSH_FILES.value) {
+      throw new Error('Required configuration `POSTGRES_PUSH_FILES` is undefined');
+    }
+    const configuredPaths = this.env.POSTGRES_PUSH_FILES.value.trim().split(',').sort();
+    const sqlFilePaths = await findFilePaths(configuredPaths);
+    if (!sqlFilePaths.length) {
+      throw new Error('No valid file paths discovered in `POSTGRES_PUSH_FILES`');
+    }
     let command;
-    const dockerCommands = seedFilePaths.map((seedFilePath) => () => {
-      console.info(`  Execute SQL: ${seedFilePath}`);
+    const dockerCommands = sqlFilePaths.map((sqlFilePath) => () => {
+      console.info(`  Execute SQL: ${sqlFilePath}`);
       command = `exec \
         -e POSTGRES_USER=${this.env.POSTGRES_SUPER_USER.value} \
         -e POSTGRES_PASSWORD=${this.env.POSTGRES_SUPER_PASSWORD.value} \
         -i ${this.env.POSTGRES_CONTAINER_NAME.value} \
-        psql -U ${this.env.POSTGRES_SUPER_USER.value} < ${path.join(this.options.cwd, seedFilePath)}`;
+        psql -U ${this.env.POSTGRES_SUPER_USER.value} < ${path.join(this.options.cwd, sqlFilePath)}`;
       return executeDocker(command, this.options.verbose);
     });
     await Promise.all(dockerCommands);
-    console.info('Seeded PostgreSQL database');
+    console.info('Pushed PostgreSQL data');
     return true;
   }
 
