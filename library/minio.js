@@ -109,13 +109,14 @@ class MinIOService {
     if (containerId) {
       throw new Error('MinIO container already exists');
     }
-    const command = `run --name ${this.env.MINIO_CONTAINER_NAME.value} \
+    const command = `run -d \
+      --name ${this.env.MINIO_CONTAINER_NAME.value} \
       -p ${this.env.MINIO_EXPOSED_PORT.value}:9000 \
       -p ${this.env.MINIO_EXPOSED_WEB_PORT.value}:9001 \
       -v ${this.env.MINIO_CONTAINER_NAME.value}:${this.env.MINIO_PATH.value} \
       -e MINIO_ROOT_USER=${this.env.MINIO_ROOT_USER.value} \
       -e MINIO_ROOT_PASSWORD=${this.env.MINIO_ROOT_PASSWORD.value} \
-      -d ${this.env.MINIO_IMAGE.value} server \
+      ${this.env.MINIO_IMAGE.value} server \
       --console-address :${this.env.MINIO_EXPOSED_WEB_PORT.value} \
       ${this.env.MINIO_PATH.value}`;
     const newContainerId = await executeDocker(command, this.options.verbose);

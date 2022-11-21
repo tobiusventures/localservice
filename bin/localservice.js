@@ -41,6 +41,7 @@ function showUsage() {
   console.info('Services (implemented)');
   console.info('  minio     MinIO object storage (s3 compatible)');
   console.info('  mysql     MySQL database');
+  console.info('  postgres  PostgreSQL database');
   console.info('');
   console.info('Commands (universal)');
   console.info('  create    Create new service container');
