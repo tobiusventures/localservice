@@ -22,7 +22,7 @@ Options
 Services (implemented)
   minio     MinIO object storage (s3 compatible)
   mysql     MySQL database
-	pgsql     PostgreSQL database
+	postgres  PostgreSQL database
 
 Commands (universal)
   create    Create new service container
