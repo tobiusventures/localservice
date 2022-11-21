@@ -51,7 +51,10 @@ const execute = (serviceName, commandName) => {
 // configure program
 program
   .name('npx localservice')
-  .description('Manage local services (utilizes Docker)')
+  .description(`Manage local services (using Docker):
+  minio             MinIO object storage (s3 compatible)
+  mysql             MySQL database
+  postgres          PostgreSQL database`)
   .version(version)
   .option('-v, --verbose', 'output verbose info (e.g. raw Docker commands)')
   .helpOption('-h, --help', 'display general help and usage info')
