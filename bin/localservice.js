@@ -102,5 +102,35 @@ program.command('remove')
   .argument('<service>', 'container service')
   .action((service) => execute(service, 'remove'));
 
+// auto correct deprecated command line argument order
+// @todo: remove this workaround before version 1.0.0 is released
+const args = [...process.argv];
+const services = ['minio', 'mysql', 'postgres'];
+const commands = program.commands.map((command) => command._name);
+const legacy = [-1, -1];
+args.forEach((arg, idx) => {
+  if (legacy[0] === -1 && services.includes(arg)) {
+    legacy[0] = idx;
+  }
+  if (legacy[1] === -1 && commands.includes(arg)) {
+    legacy[1] = idx;
+  }
+});
+if (legacy.reduce((a, b) => a + b) !== -2) {
+  const swap = [args[legacy[0]], args[legacy[1]]];
+  args[legacy[0]] = swap[1];
+  args[legacy[1]] = swap[0];
+  console.warn(`  ${['!!', '~ '.repeat(39)].join(' ').padEnd(81)}!!`);
+  console.warn(`  ${'!! WARNING'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${'!!'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${'!! Deprecated command line argument order was detected and auto corrected.'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${['!! -- npx localservice ', process.argv.slice(2).join(' ')].join('').padEnd(81, ' ')}!!`);
+  console.warn(`  ${['!! ++ npx localservice ', args.slice(2).join(' ')].join('').padEnd(81, ' ')}!!`);
+  console.warn(`  ${'!!'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${'!! Update your implementation, this workaround will be removed in the future.'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${['!!', '~ '.repeat(39)].join(' ').padEnd(81)}!!`);
+  console.warn();
+}
+
 // parse command line arguments
-program.parse();
+program.parse(args);
