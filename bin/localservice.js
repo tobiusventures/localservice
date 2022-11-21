@@ -121,8 +121,10 @@ args.forEach((arg, idx) => {
 });
 if (legacy.reduce((a, b) => a + b) !== -2) {
   const swap = [args[legacy[0]], args[legacy[1]]];
+  /* eslint-disable prefer-destructuring */
   args[legacy[0]] = swap[1];
   args[legacy[1]] = swap[0];
+  /* eslint-enable prefer-destructuring */
   console.warn(`  ${['!!', '~ '.repeat(39)].join(' ').padEnd(81)}!!`);
   console.warn(`  ${'!! WARNING'.padEnd(81, ' ')}!!`);
   console.warn(`  ${'!!'.padEnd(81, ' ')}!!`);
