@@ -210,7 +210,7 @@ class MySQLService {
    */
   async _seedDatabase() {
     await verifyEnvironment(this.env);
-    const seedFilePaths = await findFilePaths(this.env.MYSQL_SEED_FILES.value.trim().split(',').sort());
+    const seedFilePaths = await findFilePaths(this.env.MYSQL_PUSH_FILES.value.trim().split(',').sort());
     let command;
     const dockerCommands = seedFilePaths.map((seedFilePath) => () => {
       console.info(`  Execute SQL: ${seedFilePath}`);
@@ -238,11 +238,12 @@ class MySQLService {
     if (containerId) {
       throw new Error('MySQL container already exists');
     }
-    const command = `run --name ${this.env.MYSQL_CONTAINER_NAME.value} \
+    const command = `run -d \
+      --name ${this.env.MYSQL_CONTAINER_NAME.value} \
       -p ${this.env.MYSQL_EXPOSED_PORT.value}:3306 \
       -v ${this.env.MYSQL_CONTAINER_NAME.value}:${this.env.MYSQL_PATH.value} \
       -e MYSQL_ROOT_PASSWORD=${this.env.MYSQL_ROOT_PASSWORD.value} \
-      -d ${this.env.MYSQL_IMAGE.value}`;
+      ${this.env.MYSQL_IMAGE.value}`;
     const newContainerId = await executeDocker(command, this.options.verbose);
     await this._waitUntilServiceIsReady();
     await this._prepareRootUser();
