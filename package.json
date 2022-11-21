@@ -1,8 +1,8 @@
 {
   "name": "localservice",
   "version": "0.8.0",
-  "description": "Install and manage local services for your development environments",
-  "keywords": "node cli docker local service development environment dotenv",
+  "description": "Manage local services (using Docker)",
+  "keywords": "node cli docker local service development environment dotenv minio mysql postgres",
   "main": "./bin/localservice.js",
   "bin": {
     "localservice": "./bin/localservice.js"
