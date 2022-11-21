@@ -183,7 +183,7 @@ class PostgreSQLService {
         -e POSTGRES_USER=${this.env.POSTGRES_SUPER_USER.value} \
         -e POSTGRES_PASSWORD=${this.env.POSTGRES_SUPER_PASSWORD.value} \
         -i ${this.env.POSTGRES_CONTAINER_NAME.value} \
-        mysql -u root < ${path.join(this.options.cwd, seedFilePath)}`;
+        psql -U ${this.env.POSTGRES_SUPER_USER.value} < ${path.join(this.options.cwd, seedFilePath)}`;
       return executeDocker(command, this.options.verbose);
     });
     await Promise.all(dockerCommands);
