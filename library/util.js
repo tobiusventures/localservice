@@ -144,12 +144,13 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
     console.info('  Container status commands will not run until env var errors are resolved');
     return;
   }
+  const containerName = Object.keys(env).find((key) => /_CONTAINER_NAME$/.test(key));
   const containerId = await getContainerId(
-    env[`${displayServiceName.toUpperCase()}_CONTAINER_NAME`].value,
+    env[containerName].value,
     verbose,
   );
   const containerRunning = await isContainerRunning(
-    env[`${displayServiceName.toUpperCase()}_CONTAINER_NAME`].value,
+    env[containerName].value,
     verbose,
   );
   console.info([
@@ -165,7 +166,7 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
   console.info([
     '  ',
     'Container Name'.padEnd(minWidth + 3),
-    `${env[`${displayServiceName.toUpperCase()}_CONTAINER_NAME`].value || 'Undefined'}`.padEnd(minWidth),
+    `${env[containerName].value || 'Undefined'}`.padEnd(minWidth),
   ].join(''));
   console.info([
     '  ',
