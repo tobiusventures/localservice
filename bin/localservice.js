@@ -137,11 +137,20 @@ if (order[0] !== -1 && order[1] === -1) {
     });
   });
 }
-if (order[0] !== -1 && order[1] !== -1) {
+if ((order[0] !== -1 && order[1] !== -1) && ((order[1] > order[0]) || legacyCommand)){
   const swap = [args[order[0]], args[order[1]]];
   /* eslint-disable prefer-destructuring */
-  args[order[0]] = legacyCommand || swap[1];
-  args[order[1]] = swap[0];
+  if (legacyCommand) {
+    if (order[1] < order[0]) {
+      args[order[1]] = legacyCommand;
+    } else {
+      swap[1] = legacyCommand;
+    }
+  }
+  if (order[1] > order[0]) {
+    args[order[0]] = swap[1];
+    args[order[1]] = swap[0];
+  }
   /* eslint-enable prefer-destructuring */
   console.warn(`  ${['!!', '~ '.repeat(39)].join(' ').padEnd(81)}!!`);
   console.warn(`  ${'!! WARNING'.padEnd(81, ' ')}!!`);
