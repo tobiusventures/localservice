@@ -1,8 +1,8 @@
 {
   "name": "localservice",
-  "version": "0.7.0",
-  "description": "Install and manage local services for your development environments",
-  "keywords": "node cli docker local service development environment dotenv",
+  "version": "0.8.0",
+  "description": "Manage local services (using Docker)",
+  "keywords": "node cli docker local service development environment dotenv minio mysql postgres",
   "main": "./bin/localservice.js",
   "bin": {
     "localservice": "./bin/localservice.js"
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/tobiusventures/localservice#readme",
   "dependencies": {
+    "commander": "^9.4.1",
     "docker-cli-js": "^2.9.0",
     "dotenv": "^16.0.1",
     "fast-glob": "^3.2.11"

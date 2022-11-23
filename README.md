@@ -12,25 +12,26 @@ Install and manage services for your local development environments.
 ```text
 [~] npm i localservice
 [~] npx localservice -h
+Usage: npx localservice [options] [command]
 
-Usage: localservice [options] <service> <command>
+Manage local services (using Docker):
+  minio             MinIO object storage (s3 compatible)
+  mysql             MySQL database
+  postgres          PostgreSQL database
 
-Options
-  -v, --verbose   Show verbose info (e.g. raw docker commands, etc)
-  -h, --help      Show this help screen
+Options:
+  -V, --version     output the version number
+  -v, --verbose     output verbose info (e.g. raw Docker commands)
+  -h, --help        display general help and usage info
 
-Services (implemented)
-  minio     MinIO object storage (s3 compatible)
-  mysql     MySQL database
-	postgres  PostgreSQL database
-
-Commands (universal)
-  create    Create new service container
-  info      Get service env and container info
-  push      Push data to running service container
-  remove    Remove existing service container
-  start     Start stopped service container
-  stop      Stop running service container
+Commands:
+  info <service>    Display service info (env vars and container status)
+  create <service>  Create service container
+  stop <service>    Stop service container
+  start <service>   Start service container
+  push <service>    Push data to service
+  remove <service>  Remove service container
+  help <command>    Display help for specific <command>
 ```
 
 ## Environment Variables
