@@ -141,7 +141,6 @@ class MySQLService {
       }
       return false;
     } catch (err) {
-      // console.warn('_isServiceReady', { err });
       return false;
     }
   }

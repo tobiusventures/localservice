@@ -26,8 +26,11 @@ class LocalService {
       // eslint-disable-next-line import/no-dynamic-require
       this.service = require(`../library/${serviceName}.js`)(options);
     } catch (err) {
-      console.error(err);
-      throw new Error(`"${serviceName}" is not a supported service`);
+      console.error(`"${serviceName}" is not a supported service`);
+      if (process.env.VERBOSE) {
+        throw new Error(err);
+      }
+      process.exit(1);
     }
   }
 }
@@ -110,29 +113,45 @@ program.command('remove')
 const args = [...process.argv];
 const services = ['minio', 'mysql', 'postgres'];
 const commands = program.commands.map((command) => command._name);
-const legacy = [-1, -1];
+const aliases = {
+  info: ['config', 'env', 'status'],
+  push: ['seed'],
+};
+const order = [-1, -1];
+let legacyCommand;
 args.forEach((arg, idx) => {
-  if (legacy[0] === -1 && services.includes(arg)) {
-    legacy[0] = idx;
+  if (order[0] === -1 && services.includes(arg)) {
+    order[0] = idx;
   }
-  if (legacy[1] === -1 && commands.includes(arg)) {
-    legacy[1] = idx;
+  if (order[1] === -1 && commands.includes(arg)) {
+    order[1] = idx;
   }
 });
-if (legacy.reduce((a, b) => a + b) !== -2) {
-  const swap = [args[legacy[0]], args[legacy[1]]];
+if (order[0] !== -1 && order[1] === -1) {
+  Object.keys(aliases).forEach((key) => {
+    args.forEach((arg, idx) => {
+      if (order[1] === -1 && aliases[key].includes(arg)) {
+        legacyCommand = key;
+        order[1] = idx;
+      }
+    });
+  });
+}
+if (order[0] !== -1 && order[1] !== -1) {
+  const swap = [args[order[0]], args[order[1]]];
   /* eslint-disable prefer-destructuring */
-  args[legacy[0]] = swap[1];
-  args[legacy[1]] = swap[0];
+  args[order[0]] = legacyCommand || swap[1];
+  args[order[1]] = swap[0];
   /* eslint-enable prefer-destructuring */
   console.warn(`  ${['!!', '~ '.repeat(39)].join(' ').padEnd(81)}!!`);
   console.warn(`  ${'!! WARNING'.padEnd(81, ' ')}!!`);
   console.warn(`  ${'!!'.padEnd(81, ' ')}!!`);
-  console.warn(`  ${'!! Deprecated command line argument usage was detected and auto corrected:'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${'!! Deprecated command line usage was detected and auto corrected:'.padEnd(81, ' ')}!!`);
   console.warn(`  ${['!! -- npx localservice ', process.argv.slice(2).join(' ')].join('').padEnd(81, ' ')}!!`);
   console.warn(`  ${['!! ++ npx localservice ', args.slice(2).join(' ')].join('').padEnd(81, ' ')}!!`);
   console.warn(`  ${'!!'.padEnd(81, ' ')}!!`);
-  console.warn(`  ${'!! This auto correction will not be carried forward into version 1.0.0.'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${'!! These auto corrections will not survive the upcoming version 1.0.0 release,'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${'!! please remember to update your command line usage before upgrading.'.padEnd(81, ' ')}!!`);
   console.warn(`  ${['!!', '~ '.repeat(39)].join(' ').padEnd(81)}!!`);
   console.warn();
 }
