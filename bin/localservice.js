@@ -105,7 +105,7 @@ program.command('remove')
   .argument('<service>', 'container service')
   .action((service) => execute(service, 'remove'));
 
-// auto correct deprecated command line argument order
+// auto correct legacy command line argument order
 // @todo: remove this workaround before version 1.0.0 is released
 const args = [...process.argv];
 const services = ['minio', 'mysql', 'postgres'];
@@ -128,11 +128,11 @@ if (legacy.reduce((a, b) => a + b) !== -2) {
   console.warn(`  ${['!!', '~ '.repeat(39)].join(' ').padEnd(81)}!!`);
   console.warn(`  ${'!! WARNING'.padEnd(81, ' ')}!!`);
   console.warn(`  ${'!!'.padEnd(81, ' ')}!!`);
-  console.warn(`  ${'!! Deprecated command line argument order was detected and auto corrected.'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${'!! Deprecated command line argument usage was detected and auto corrected:'.padEnd(81, ' ')}!!`);
   console.warn(`  ${['!! -- npx localservice ', process.argv.slice(2).join(' ')].join('').padEnd(81, ' ')}!!`);
   console.warn(`  ${['!! ++ npx localservice ', args.slice(2).join(' ')].join('').padEnd(81, ' ')}!!`);
   console.warn(`  ${'!!'.padEnd(81, ' ')}!!`);
-  console.warn(`  ${'!! Update your implementation, this workaround will be removed in the future.'.padEnd(81, ' ')}!!`);
+  console.warn(`  ${'!! This auto correction will not be carried forward into version 1.0.0.'.padEnd(81, ' ')}!!`);
   console.warn(`  ${['!!', '~ '.repeat(39)].join(' ').padEnd(81)}!!`);
   console.warn();
 }
