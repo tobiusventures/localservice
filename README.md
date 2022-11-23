@@ -14,7 +14,7 @@ Install and manage services for your local development environments.
 [~] npx localservice -h
 Usage: npx localservice [options] [command]
 
-Manage local services (using Docker):
+Supported Services:
   minio             MinIO object storage (s3 compatible)
   mysql             MySQL database
   postgres          PostgreSQL database
