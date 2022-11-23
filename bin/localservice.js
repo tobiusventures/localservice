@@ -51,7 +51,7 @@ const execute = (serviceName, commandName) => {
 // configure program
 program
   .name('npx localservice')
-  .description(`Manage local services (using Docker):
+  .description(`Supported Services:
   minio             MinIO object storage (s3 compatible)
   mysql             MySQL database
   postgres          PostgreSQL database`)
