@@ -180,11 +180,19 @@ const printInfo = async (displayServiceName, env, verbose = false) => {
   ].join(''));
 };
 
+/**
+ * Sleep for x milliseconds
+ * @param {Integer} ms
+ * @return {Promise}
+ */
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 module.exports = {
   executeDocker,
   findFilePaths,
   getContainerId,
   isContainerRunning,
   printInfo,
+  sleep,
   verifyEnvironment,
 };

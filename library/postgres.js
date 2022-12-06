@@ -5,6 +5,7 @@ const {
   getContainerId,
   isContainerRunning,
   printInfo,
+  sleep,
   verifyEnvironment,
 } = require('./util');
 
@@ -124,7 +125,11 @@ class PostgreSQLService {
       pg_isready`;
     try {
       const result = await executeDocker(command, this.options.verbose);
-      return /accepting connections/.test(result);
+      if (/accepting connections/.test(result)) {
+        await sleep(this.env.POSTGRES_SERVICE_WAIT_INTERVAL.value);
+        return true;
+      }
+      return false;
     } catch (err) {
       // console.warn('_isServiceReady', { err });
       return false;
@@ -138,7 +143,6 @@ class PostgreSQLService {
   async _waitUntilServiceIsReady() {
     let count = 0;
     let isReady = false;
-    const sleep = () => setTimeout(() => undefined, this.env.POSTGRES_SERVICE_WAIT_INTERVAL.value);
     /* eslint-disable no-await-in-loop */
     while (count < this.env.POSTGRES_SERVICE_WAIT_MAX_RETRIES.value) {
       isReady = await this._isServiceReady();
@@ -146,7 +150,7 @@ class PostgreSQLService {
         return true;
       }
       count += 1;
-      await sleep();
+      await sleep(this.env.POSTGRES_SERVICE_WAIT_INTERVAL.value);
     }
     /* eslint-enable no-await-in-loop */
     throw new Error('PostgreSQL service took too long to start, please try again (or update `POSTGRES_SERVICE_WAIT_*` settings)');
