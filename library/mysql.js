@@ -5,6 +5,7 @@ const {
   getContainerId,
   isContainerRunning,
   printInfo,
+  sleep,
   verifyEnvironment,
 } = require('./util');
 
@@ -152,7 +153,6 @@ class MySQLService {
   async _waitUntilServiceIsReady() {
     let count = 0;
     let isReady = false;
-    const sleep = () => setTimeout(() => undefined, this.env.MYSQL_SERVICE_WAIT_INTERVAL.value);
     /* eslint-disable no-await-in-loop */
     while (count < this.env.MYSQL_SERVICE_WAIT_MAX_RETRIES.value) {
       isReady = await this._isServiceReady();
@@ -160,7 +160,7 @@ class MySQLService {
         return true;
       }
       count += 1;
-      await sleep();
+      await sleep(this.env.MYSQL_SERVICE_WAIT_INTERVAL.value);
     }
     /* eslint-enable no-await-in-loop */
     throw new Error('MySQL service took too long to start, please try again (or update `MYSQL_SERVICE_WAIT_*` settings)');
